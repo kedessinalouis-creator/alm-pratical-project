@@ -1,0 +1,42 @@
+name: ALM Pipeline
+
+on:
+  push:
+    branches: [ main, feature/, bugfix/ ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        
+    - name: Install dependencies
+      run: npm install
+      
+    - name: Run tests
+      run: npm test
+      
+    - name: Generate test report
+      run: |
+        echo "Tests executed: $(date)" > test-report.txt
+        npm test -- --coverage >> test-report.txt
+        
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Deploy to staging
+      run: |
+        echo "Déploiement en cours..."
+        # Ici tu peux ajouter tes commandes de déploiement réel
+        # Ex: docker build, kubectl apply, etc.
